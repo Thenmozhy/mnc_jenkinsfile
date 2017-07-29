@@ -22,7 +22,7 @@ pipeline {
 			  $class: 'GitSCM',
 			  branches: [[name: 'master']],
 			  userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-			  url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
+			  url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
 			])
 	  }
 	}
@@ -53,7 +53,7 @@ pipeline {
 			  sh '''
                   #!/bin/bash
 				  set -e
-				  aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/master/REAN-ManagedCloud-repo.zip
+				  aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/master/REAN-ManagedCloud-repo.zip
 				  echo "artifacts sent to master"
                 '''
 			}
