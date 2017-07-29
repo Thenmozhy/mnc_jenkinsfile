@@ -35,8 +35,12 @@ pipeline {
 			try {
 			  sh '''
 			      #!/bin/bash
-                  zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
-                '''
+			      cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV
+			      ls -l
+			      cd $WORKSPACE
+			      ls -l
+                              zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
+                           '''
 			}
 			catch (Exception e) {
 			}
