@@ -53,7 +53,7 @@ pipeline {
 			  sh '''
                   #!/bin/bash
 				  set -e
-				  aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/master/REAN-ManagedCloud-repo.zip --recursive
+				  aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/master/REAN-ManagedCloud-repo.zip --region us-west-2
 				  echo "artifacts sent to master"
                 '''
 			}
