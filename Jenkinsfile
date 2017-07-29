@@ -55,11 +55,13 @@ pipeline {
 			script {
 			try {
 			  sh '''
-                  #!/bin/bash
+                                  #!/bin/bash
 				  set -e
+                                  cd $WORKSPACE
+				  ls -l
 				  aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/master/REAN-ManagedCloud-repo.zip --region us-west-2
 				  echo "artifacts sent to master"
-                '''
+                               '''
 			}
 			catch (Exception e) {
 			}
