@@ -124,21 +124,25 @@ pipeline {
 	  
 	stage('Uploading the artifacts to S3 bucket') {
 	  steps {
-		      echo "Starting verify target branch"
-		      script {
-		      try {
-		        sh '''
-                #!/bin/bash
-		            echo "Target Branch: $ghprbTargetBranch"
-			          echo "Target branch is master"
-			          aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Master/REAN-ManagedCloud-repo.zip
-			          echo "artifacts sent to master"
-              '''
-		     }
-		     catch (Exception e) {
-	       }
-	      }
-      }
-    }
+			echo "Starting verify target branch"
+			script {
+			   if (env.BRANCH_NAME == 'master') {
+			        sh '''
+                        #!/bin/bash
+				        set -e
+				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
+				        echo "artifacts sent to master"
+                      '''
+				}else{
+			        sh '''
+                        #!/bin/bash
+				        set -e
+				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
+				        echo "artifacts sent to develop"
+                      '''
+                }
+		    }
+	    }
+	 }	
   }  
 }
