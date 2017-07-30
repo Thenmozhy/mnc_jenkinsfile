@@ -65,7 +65,10 @@ pipeline {
 					  echo "$b"
 					  c=$(git branch --merged )
 					  echo "$c"
+					'''  
                 }
+				catch (Exception e) {
+			    }
 			}
         }
    	}	
