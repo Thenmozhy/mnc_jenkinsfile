@@ -104,5 +104,40 @@ pipeline {
 			  ])
 	   }
 	}
+	
+	stage('archive_repo') {
+	  steps {
+	        echo "Archiving the cloned repo"
+			    script {
+			    try {
+			      sh '''
+		 	          #!/bin/bash
+                zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
+              '''
+			    }
+			    catch (Exception e) {
+			    }
+		    }				  
+	    }
+	  }
+	  
+	stage('Uploading the artifacts to S3 bucket') {
+	  steps {
+		      echo "Starting verify target branch"
+		      script {
+		      try {
+		        sh '''
+                #!/bin/bash
+		            echo "Target Branch: $ghprbTargetBranch"
+			          echo "Target branch is master"
+			          aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Master/REAN-ManagedCloud-repo.zip
+			          echo "artifacts sent to master"
+              '''
+		     }
+		     catch (Exception e) {
+	       }
+	      }
+      }
+    }
   }  
 }
