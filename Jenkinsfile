@@ -50,29 +50,6 @@ pipeline {
           }
         }
       }
-	  
-	stage('clone_repo') {
-	  steps {
-            echo "find the branch"
-			    script {
-			    try {
-			      sh '''
-                      #!/bin/bash
-					  ${ghprbActualCommit}
-                      a=$(git diff-tree --name-only ${ghprbActualCommit})
-					  echo "$a"
-					  b=$(git show :/^Merge)
-					  echo "$b"
-					  c=$(git branch --merged )
-					  echo "$c"
-					'''  
-                }
-				catch (Exception e) {
-			    }
-			}
-        }
-   	}	
-
  					  
   
 	stage('clone__master_repo') {
@@ -113,6 +90,12 @@ pipeline {
 			      sh '''
 		 	          #!/bin/bash
 					  ls -l
+					  a=$(git diff-tree --name-only ${ghprbActualCommit})
+					  echo "$a"
+					  b=$(git show :/^Merge)
+					  echo "$b"
+					  c=$(git branch --merged )
+					  echo "$c"
                       zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
               '''
 			    }
@@ -130,14 +113,14 @@ pipeline {
 			        sh '''
                         #!/bin/bash
 				        set -e
-				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
+				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip 
 				        echo "artifacts sent to master"
                       '''
 				}else{
 			        sh '''
                         #!/bin/bash
 				        set -e
-				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
+				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip 
 				        echo "artifacts sent to develop"
                       '''
                 }
