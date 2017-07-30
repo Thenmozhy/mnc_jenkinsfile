@@ -90,8 +90,6 @@ pipeline {
 			      sh '''
 		 	          #!/bin/bash
 					  ls -l
-					  a=$(git diff-tree --name-only ${ghprbActualCommit})
-					  echo "$a"
 					  b=$(git show :/^Merge)
 					  echo "$b"
 					  c=$(git branch --merged )
