@@ -2,7 +2,22 @@
 import static groovy.io.FileType.DIRECTORIES
 
 def setJobPropertiesVerify() {
-    properties([pipelineTriggers([[$class: 'GitHubPushTrigger'], pollSCM('* * * * *')])])
+	pipelineTriggers([
+      [
+        $class: 'GitHubPushTrigger',
+        spec: '',
+		pollSCM('* * * * *')
+        triggerMode: 'HEAVY_HOOKS',
+        events: [[
+            $class: 'GitHubPROpenEvent'
+        ]],
+        abortRunning: true,
+        branchRestriction: ([
+          targetBranch: 'develop\nmaster'
+        ]),
+        preStatus: true,
+        skipFirstRun: true
+      ]
 }
 
 pipeline {
