@@ -23,7 +23,7 @@ pipeline {
 			  sh '''
 			      #!/bin/bash
 				  pwd
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/
 				  git clone https://github.com/Thenmozhy/mnc_jenkinsfile.git 
 				  cd mnc_jenkinsfile
 				  ls -l
@@ -54,7 +54,7 @@ pipeline {
 			try {
 			    sh '''
 			      #!/bin/bash
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/
 				  line=$(head -n1 branch)
 				  echo "$line"
 				  pwd
