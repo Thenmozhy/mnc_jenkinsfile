@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 import static groovy.io.FileType.DIRECTORIES
-def branch = ${BRANCH_NAME}
-def commit = ${GIT_COMMIT}
 
 def setJobPropertiesVerify() {
 	pipelineTriggers([
