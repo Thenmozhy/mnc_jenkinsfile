@@ -27,6 +27,8 @@ pipeline {
 				  git clone https://github.com/Thenmozhy/mnc_jenkinsfile.git 
 				  cd mnc_jenkinsfile
 				  ls -l
+				  git diff-tree --name-only ${ghprbActualCommit} > CommitDet
+				  cat CommitDet
 				  git branch --merged > commit
 				  firstline=$(head -n1 commit)
 				  echo "$firstline"
