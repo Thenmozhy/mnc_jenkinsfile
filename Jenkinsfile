@@ -25,6 +25,7 @@ pipeline {
 				  pwd
 				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/
 				  git clone https://github.com/Thenmozhy/mnc_jenkinsfile.git 
+				  cd mnc_jenkinsfile
 				  ls -l
 				  git branch --merged > commit
 				  firstline=$(head -n1 commit)
