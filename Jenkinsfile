@@ -23,7 +23,7 @@ pipeline {
 			  sh '''
 			      #!/bin/bash
 				  pwd
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/
 				  git clone https://github.com/Thenmozhy/mnc_jenkinsfile.git 
 				  cd mnc_jenkinsfile
 				  ls -l
@@ -37,15 +37,15 @@ pipeline {
 				  if [ "$commit" == "$master_commit" ]
 				  then
 					echo "Commit on master branch"
-					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile
+					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile
 					git checkout master
-					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile -x *.git* 
+					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile -x *.git* 
 					
 				  else
 					echo "Commit on develop branch"
-					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/
+					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/
 					git checkout develop
-					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile -x *.git*
+					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile -x *.git*
 					
 				  fi
                 '''
