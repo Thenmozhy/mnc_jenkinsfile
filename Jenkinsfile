@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
 import static groovy.io.FileType.DIRECTORIES
-def branch = ${BRANCH_NAME}
-def commit = ${GIT_COMMIT}
+def branch = env.BRANCH_NAME
 
 def setJobPropertiesVerify() {
 	pipelineTriggers([
@@ -78,8 +77,7 @@ pipeline {
 			  sh '''
 			      #!/bin/bash
 				  ls -l
-				  print "BRANCH: ${BRANCH_NAME}, COMMIT: ${GIT_COMMIT}"
-                  print "BRANCH: ${env.BRANCH_NAME}, COMMIT: ${env.GIT_COMMIT}"
+				  echo $BRANCH_NAME
                   zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
                 '''
 			}
