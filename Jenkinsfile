@@ -28,7 +28,7 @@ pipeline {
 				  cd mnc_jenkinsfile
 				  ls -l
 				  commit=$(git rev-parse origin/master)
-				  git check develop
+				  git checkout develop
 				  git checkout master
 				  echo "$commit"
 				  cd .git/refs/heads
