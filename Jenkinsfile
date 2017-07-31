@@ -27,20 +27,27 @@ pipeline {
 				  git clone https://github.com/Thenmozhy/mnc_jenkinsfile.git 
 				  cd mnc_jenkinsfile
 				  ls -l
-				  git diff-tree --name-only ${ghprbActualCommit} > CommitDet
-				  cat CommitDet
-				  git branch --merged > commit
-				  firstline=$(head -n1 commit)
-				  echo "$firstline"
-				  if [ "$firstline" == '* develop' ]
+				  commit=$(git rev-parse origin/master)
+				  echo "$commit"
+				  cd .git/refs/heads
+				  master_commit=$(head -n1 master)
+				  echo "$master_commit"
+				  dev_commit=$(head -n1 develop)
+				  echo "$dev_commit"
+				  if [ "$commit" == "$master_commit" ]
 				  then
-					echo "develop" > branch
+					echo "Commit on master branch"
+					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile
+					git checkout master
+					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile -x *.git* 
+					
 				  else
-					echo "master" > branch
+					echo "Commit on develop branch"
+					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/
+					git checkout develop
+					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile -x *.git*
+					
 				  fi
-				  line=$(head -n1 branch)
-				  echo "$line"
-				  echo "finded latest merged branch"
                 '''
 			}
 			catch (Exception e) {
@@ -49,73 +56,6 @@ pipeline {
 	    }
 	  }  
   
-    stage('clone_repo') {
-	  steps {
-	    echo "cloning repo"
-	    script {
-			try {
-			    sh '''
-			      #!/bin/bash
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile
-				  line=$(head -n1 branch)
-				  echo "$line"
-				  pwd
-				  if [ "$line" == 'develop' ]
-				  steps {
-					checkout([
-			            $class: 'GitSCM',
-			            branches: [[name: 'develop']],
-			            doGenerateSubmoduleConfigurations: false,
-			            extensions: [],
-			            submoduleCfg: [],
-			            userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-			            refspec: '+refs/heads/develop:refs/remotes/origin/develop',
-			            url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
-			          ])
-				  }
-				  else
-				    steps {
-					  checkout([
-			            $class: 'GitSCM',
-			            branches: [[name: 'develop']],
-			            doGenerateSubmoduleConfigurations: false,
-			            extensions: [],
-			            submoduleCfg: [],
-			            userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-			            refspec: '+refs/heads/develop:refs/remotes/origin/develop',
-			            url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
-			          ])
-				  }
-				  fi				  
-				'''
-			}	
-            catch (Exception e) {
-			}
-		  }				  
-	    }				
-	  }
-	
-	
-	stage('archive_repo') {
-	  steps {
-	        echo "Archiving the cloned repo"
-			script {
-			try {
-			  sh '''
-			      #!/bin/bash
-				  echo "$WORKSPACE"
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/
-				  ls -l
-                  zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/branch -x *.git*
-                '''
-			}
-			catch (Exception e) {
-			}
-		  }				  
-	    }
-	  }
-	
-	
 	stage('Uploading the artifacts to S3 bucket') {
 	  steps {
 			echo "Starting verify target branch"
