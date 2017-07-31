@@ -1,37 +1,39 @@
 #!/usr/bin/env groovy
-import static groovy.io.FileType.DIRECTORIES
 
-def setJobPropertiesVerify() {
-    properties([
+def setJobProperties() {
+  properties([
     [
       $class: 'GithubProjectProperty',
       displayName: 'Test',
       projectUrlStr: 'https://github.com/Thenmozhy/mnc_jenkinsfile/'
     ],
+    [
+      $class: 'BuildDiscarderProperty',
+      strategy: [
+        $class: 'BuildRotator',
+        daysToKeep: 5,
+        numToKeep: 10,
+        artifactsDaysToKeep: 5,
+        artifactsNumToKeep: 10
+      ]
+    ],
     pipelineTriggers([
       [
-        $class: 'GhprbTrigger',
-		    gitHubAuthId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-		    adminlist: 'pveerannagari',
-		    useGitHubHooks: true,
-		    cron: '* * * * *',
-		    orgslist: 'reancloud',
-		    allowMembersOfWhitelistedOrgsAsAdmin: true,
-		    extensions: [[
-		      $class: 'GhprbSimpleStatus',
-		      commitStatusContext: 'Uploading artifacts',
-		      triggeredStatus: 'build triggered',
-		      startedStatus: 'build started',
-		      completedStatus: [[
-		        result: 'SUCCESS',
-			      message: 'Uploading the artifacts to S3 bucket success',
-			      result: 'FAILURE',
-			      message: 'Uploading the artifacts to S3 bucket failed'
-		      ]]
-		   ]]
-		  ]
-	  ])
-	])
+        $class: 'GitHubPRTrigger',
+        spec: '',
+        triggerMode: 'HEAVY_HOOKS',
+        events: [[
+            $class: 'GitHubPROpenEvent'
+        ]],
+        abortRunning: true,
+        branchRestriction: ([
+          targetBranch: 'develop\nmaster'
+        ]),
+        preStatus: true,
+        skipFirstRun: true
+      ]
+    ])
+  ])
 }
 
 pipeline {
@@ -127,3 +129,5 @@ pipeline {
 	 }	
   }  
 }
+Contact GitHub API Training Shop Blog About
+© 2017 GitHub, Inc. Terms Privacy Security Status Help
