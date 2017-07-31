@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 import static groovy.io.FileType.DIRECTORIES
-def branch = env.BRANCH_NAME
+def branch = ${BRANCH_NAME}
+def commit = ${GIT_COMMIT}
 
 def setJobPropertiesVerify() {
 	pipelineTriggers([
@@ -37,12 +38,12 @@ pipeline {
               step([$class: 'WsCleanup'])
           }
         }
-      }
+      }  
 	  
   stage('clone_repo') {
 	steps {
 	     script {
-                 if (env.BRANCH_NAME == 'master') {
+                 if (env.ref == 'refs/heads/master') {
 		             checkout([
 						$class: 'GitSCM',
 						branches: [[name: 'master']],
@@ -77,7 +78,6 @@ pipeline {
 			  sh '''
 			      #!/bin/bash
 				  ls -l
-				  echo $BRANCH_NAME
                   zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
                 '''
 			}
@@ -91,7 +91,7 @@ pipeline {
 	  steps {
 			echo "Starting verify target branch"
 			script {
-			   if (env.BRANCH_NAME == 'master') {
+			   if (env.ref == 'refs/heads/master') {
 			        sh '''
                         #!/bin/bash
 				        set -e
