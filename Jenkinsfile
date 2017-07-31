@@ -54,7 +54,7 @@ pipeline {
 			try {
 			    sh '''
 			      #!/bin/bash
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@2@tmp/mnc_jenkinsfile
 				  line=$(head -n1 branch)
 				  echo "$line"
 				  pwd
