@@ -54,7 +54,8 @@ pipeline {
 			try {
 			    sh '''
 			      #!/bin/bash
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/branch
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/
+				  line=$(head -n1 branch)
 				  echo "$line"
 				  pwd
 				  if [ "$line" == 'develop' ]
@@ -91,7 +92,7 @@ pipeline {
 			  sh '''
 			      #!/bin/bash
 				  echo "$WORKSPACE"
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/branch/
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/
 				  ls -l
                   zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/branch -x *.git*
                 '''
