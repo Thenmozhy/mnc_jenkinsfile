@@ -61,18 +61,28 @@ pipeline {
 				  if [ "$line" == 'develop' ]
 				  steps {
 					checkout([
-					$class: 'GitSCM',
-					userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-					url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
-					])
+			            $class: 'GitSCM',
+			            branches: [[name: 'develop']],
+			            doGenerateSubmoduleConfigurations: false,
+			            extensions: [],
+			            submoduleCfg: [],
+			            userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+			            refspec: '+refs/heads/develop:refs/remotes/origin/develop',
+			            url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
+			          ])
 				  }
 				  else
 				    steps {
 					  checkout([
-					  $class: 'GitSCM',
-					  userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-					  url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
-					  ])
+			            $class: 'GitSCM',
+			            branches: [[name: 'develop']],
+			            doGenerateSubmoduleConfigurations: false,
+			            extensions: [],
+			            submoduleCfg: [],
+			            userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+			            refspec: '+refs/heads/develop:refs/remotes/origin/develop',
+			            url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
+			          ])
 				  }
 				  fi				  
 				'''
