@@ -1,34 +1,11 @@
-#!/usr/bin/env groovy
-import static groovy.io.FileType.DIRECTORIES
-
-def setJobPropertiesVerify() {
-	pipelineTriggers([
-      [
-        $class: 'GitHubPushTrigger',
-        spec: '',
-		pollSCM: '* * * * *',
-        triggerMode: 'HEAVY_HOOKS',
-        events: [[
-            $class: 'GitHubPROpenEvent'
-        ]],
-        abortRunning: true,
-        branchRestriction: ([
-          targetBranch: 'develop\nmaster'
-        ]),
-        preStatus: true,
-        skipFirstRun: true
-      ]
-	 ]) 
-}
-
 pipeline {
   agent {
     node {
       label 'master'
-      customWorkspace 'workspace/REAN-ManagedCloud-DEV'
+      customWorkspace 'workspace/REAN-ManagedCloud-DEV/'
     }
   }
-    
+  
   stages {
     stage('Clean the workspace before build'){
       steps{
@@ -38,45 +15,83 @@ pipeline {
         }
       }
 	  
-  stage('clone_repo') {
-	steps {
-	     script {
-                 if (env.BRANCH_NAME == 'master') {
-		             checkout([
-						$class: 'GitSCM',
-						branches: [[name: 'master']],
-						doGenerateSubmoduleConfigurations: false,
-						extensions: [],
-						submoduleCfg: [],
-						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-						refspec: '+refs/heads/master:refs/remotes/origin/master',
-						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
-			         ])
-                }else {
-		               checkout([
-						$class: 'GitSCM',
-						branches: [[name: 'develop']],
-						doGenerateSubmoduleConfigurations: false,
-						extensions: [],
-						submoduleCfg: [],
-						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-						refspec: '+refs/heads/develop:refs/remotes/origin/develop',
-						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
-					])	
-	            }
+	stage('lastest merge') {
+	  steps {
+	        echo "Branch have latest merge"
+			script {
+			try {
+			  sh '''
+			      #!/bin/bash
+				  pwd
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/
+				  git clone ssh://git@github.com/Thenmozhy/mnc_jenkinsfile.git 
+				  ls -l
+				  git branch --merged > commit
+				  firstline=$(head -n1 commit)
+				  echo "$firstline"
+				  if [ "$firstline" == '* develop' ]
+				  then
+					echo "develop" > branch
+				  else
+					echo "master" > branch
+				  fi
+				  line=$(head -n1 branch)
+				  echo "$line"
+				  echo "finded latest merged branch"
+                '''
 			}
-		}
-	}
- 
-   stage('archive_repo') {
+			catch (Exception e) {
+			}
+		  }				  
+	    }
+	  }  
+  
+    stage('clone_repo') {
+	  steps {
+	    echo "cloning repo"
+	    script {
+			try {
+			    sh '''
+			      #!/bin/bash
+				  echo "$line"
+				  pwd
+				  if [ "$line" == 'develop' ]
+				  steps {
+					checkout([
+					$class: 'GitSCM',
+					userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+					url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
+					])
+				  }
+				  else
+				    steps {
+					  checkout([
+					  $class: 'GitSCM',
+					  userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+					  url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
+					  ])
+				  }
+				  fi				  
+				'''
+			}	
+            catch (Exception e) {
+			}
+		  }				  
+	    }				
+	  }
+	
+	
+	stage('archive_repo') {
 	  steps {
 	        echo "Archiving the cloned repo"
 			script {
 			try {
 			  sh '''
 			      #!/bin/bash
+				  echo "$WORKSPACE"
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/branch/
 				  ls -l
-                  zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
+                  zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/branch -x *.git*
                 '''
 			}
 			catch (Exception e) {
@@ -85,32 +100,37 @@ pipeline {
 	    }
 	  }
 	
-    stage('Uploading the artifacts to S3 bucket') {
+	
+	stage('Uploading the artifacts to S3 bucket') {
 	  steps {
 			echo "Starting verify target branch"
 			script {
-			   if (env.BRANCH_NAME == 'master') {
-			        sh '''
-                        #!/bin/bash
-				        set -e
-				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
-				        echo "artifacts sent to master"
-                      '''
-				}else{
-			        sh '''
-                        #!/bin/bash
-				        set -e
-				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
-				        echo "artifacts sent to develop"
-                      '''
-                }
-		    }
+			try {
+			  sh '''
+                  #!/bin/bash
+				  set -e
+				  if [ $line == 'develop' ]; then
+				    echo "Target branch is develop"
+					aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip
+					echo "artifacts sent to develop"
+					
+				  else
+					echo "Target branch is master"
+					aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Master/REAN-ManagedCloud-repo.zip
+					echo "artifacts sent to master"
+				    exit 1
+				  fi
+                '''
+			}
+			catch (Exception e) {
+			}
+		  }
 	    }
-	 }	
-  } 
+	 }
+	}	
   post {
     always {
       deleteDir()
     }
-  } 
-} 
+  }
+}
