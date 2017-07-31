@@ -50,7 +50,7 @@ pipeline {
 						submoduleCfg: [],
 						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
 						refspec: '+refs/heads/master:refs/remotes/origin/master',
-						url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
+						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
 			         ])
                 }else {
 		               checkout([
@@ -61,7 +61,7 @@ pipeline {
 						submoduleCfg: [],
 						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
 						refspec: '+refs/heads/develop:refs/remotes/origin/develop',
-						url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
+						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
 					])	
 	            }
 			}
@@ -93,14 +93,14 @@ pipeline {
 			        sh '''
                         #!/bin/bash
 				        set -e
-				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip
+				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
 				        echo "artifacts sent to master"
                       '''
 				}else{
 			        sh '''
                         #!/bin/bash
 				        set -e
-				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip
+				        aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://thenmozhy-test-buck/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip --recursive
 				        echo "artifacts sent to develop"
                       '''
                 }
