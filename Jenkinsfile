@@ -28,6 +28,8 @@ pipeline {
 				  cd mnc_jenkinsfile
 				  ls -l
 				  commit=$(git rev-parse origin/master)
+				  git check develop
+				  git checkout master
 				  echo "$commit"
 				  cd .git/refs/heads
 				  master_commit=$(head -n1 master)
@@ -35,6 +37,8 @@ pipeline {
 				  dev_commit=$(head -n1 develop)
 				  echo "$dev_commit"
 				  if [ "$commit" == "$master_commit" ]
+				  
+				  
 				  then
 					echo "Commit on master branch"
 					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile
@@ -63,8 +67,14 @@ pipeline {
 			try {
 			  sh '''
                   #!/bin/bash
-				  set -e
-				  if [ $line == 'develop' ]; then
+				  commit=$(git rev-parse origin/master)
+				  echo "$commit"
+				  cd .git/refs/heads
+				  master_commit=$(head -n1 master)
+				  echo "$master_commit"
+				  dev_commit=$(head -n1 develop)
+				  echo "$dev_commit"
+				  if [ "$commit" == "$master_commit" ]
 				    echo "Target branch is develop"
 					aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip
 					echo "artifacts sent to develop"
