@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 import static groovy.io.FileType.DIRECTORIES
-def branch = ${BRANCH_NAME}
-def commit = ${GIT_COMMIT}
 
 def setJobPropertiesVerify() {
 	pipelineTriggers([
@@ -38,22 +36,34 @@ pipeline {
               step([$class: 'WsCleanup'])
           }
         }
-      }  
+      }
 	  
   stage('clone_repo') {
 	steps {
 	     script {
-		    try {
-			  sh '''
-			      #!/bin/bash
-				  git_branch=$(git symbolic-ref HEAD 2>/dev/null)
-				  echo "$git_branch"
-                  
-                '''
-			}
-			catch (Exception e) {
-			}
-                 
+                 if (env.BRANCH_NAME == 'master') {
+		             checkout([
+						$class: 'GitSCM',
+						branches: [[name: 'master']],
+						doGenerateSubmoduleConfigurations: false,
+						extensions: [],
+						submoduleCfg: [],
+						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+						refspec: '+refs/heads/master:refs/remotes/origin/master',
+						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
+			         ])
+                }else {
+		               checkout([
+						$class: 'GitSCM',
+						branches: [[name: 'develop']],
+						doGenerateSubmoduleConfigurations: false,
+						extensions: [],
+						submoduleCfg: [],
+						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+						refspec: '+refs/heads/develop:refs/remotes/origin/develop',
+						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
+					])	
+	            }
 			}
 		}
 	}
@@ -79,7 +89,7 @@ pipeline {
 	  steps {
 			echo "Starting verify target branch"
 			script {
-			   if (env.ref == 'refs/heads/master') {
+			   if (env.BRANCH_NAME == 'master') {
 			        sh '''
                         #!/bin/bash
 				        set -e
