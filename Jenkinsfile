@@ -54,6 +54,7 @@ pipeline {
 			try {
 			    sh '''
 			      #!/bin/bash
+				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV/branch
 				  echo "$line"
 				  pwd
 				  if [ "$line" == 'develop' ]
