@@ -1,3 +1,28 @@
+#!/usr/bin/env groovy
+import static groovy.io.FileType.DIRECTORIES
+def branch = ${BRANCH_NAME}
+def commit = ${GIT_COMMIT}
+
+def setJobPropertiesVerify() {
+	pipelineTriggers([
+      [
+        $class: 'GitHubPushTrigger',
+        spec: '',
+		pollSCM: '* * * * *',
+        triggerMode: 'HEAVY_HOOKS',
+        events: [[
+            $class: 'GitHubPROpenEvent'
+        ]],
+        abortRunning: true,
+        branchRestriction: ([
+          targetBranch: 'develop\nmaster'
+        ]),
+        preStatus: true,
+        skipFirstRun: true
+      ]
+	 ]) 
+}
+
 pipeline {
   agent {
     node {
@@ -14,46 +39,36 @@ pipeline {
           }
         }
       }
-	
-
-
-  stage('clone repository'){
-  agent any
-  when{
-    branch 'master'
-  }
-  steps {
-    checkout([
-			$class: 'GitSCM',
-			branches: [[name: 'master']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions: [],
-			submoduleCfg: [],
-			userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-			refspec: '+refs/heads/master:refs/remotes/origin/master',
-			url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
-		  ])
-      }
-  }	
-  
-  stage('clone repository'){
-  agent any
-  when{
-    branch 'develop'
-  }
-  steps {
-    checkout([
-			$class: 'GitSCM',
-			branches: [[name: 'develop']],
-			doGenerateSubmoduleConfigurations: false,
-			extensions: [],
-			submoduleCfg: [],
-			userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
-			refspec: '+refs/heads/develop:refs/remotes/origin/develop',
-			url: 'https://github.com/reancloud/REAN-Managed-Cloud/']]
-		  ])
-      }
-  }	
+	  
+  stage('clone_repo') {
+	steps {
+	     script {
+                 if (env.BRANCH_NAME == 'master') {
+		             checkout([
+						$class: 'GitSCM',
+						branches: [[name: 'master']],
+						doGenerateSubmoduleConfigurations: false,
+						extensions: [],
+						submoduleCfg: [],
+						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+						refspec: '+refs/heads/master:refs/remotes/origin/master',
+						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
+			         ])
+                }else {
+		               checkout([
+						$class: 'GitSCM',
+						branches: [[name: 'develop']],
+						doGenerateSubmoduleConfigurations: false,
+						extensions: [],
+						submoduleCfg: [],
+						userRemoteConfigs: [[credentialsId: '186d9d54-a7dd-46f3-867b-926dd7a6fba1',
+						refspec: '+refs/heads/develop:refs/remotes/origin/develop',
+						url: 'https://github.com/Thenmozhy/mnc_jenkinsfile/']]
+					])	
+	            }
+			}
+		}
+	}
  
    stage('archive_repo') {
 	  steps {
@@ -63,6 +78,8 @@ pipeline {
 			  sh '''
 			      #!/bin/bash
 				  ls -l
+				  print "BRANCH: ${BRANCH_NAME}, COMMIT: ${GIT_COMMIT}"
+                  print "BRANCH: ${env.BRANCH_NAME}, COMMIT: ${env.GIT_COMMIT}"
                   zip -r "$WORKSPACE/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV -x *.git*
                 '''
 			}
