@@ -2,7 +2,7 @@ pipeline {
   agent {
     node {
       label 'master'
-      customWorkspace 'workspace/REAN-ManagedCloud-DEV/'
+      customWorkspace 'workspace/mncjenkinsfile-DEV/'
     }
   }
   
@@ -14,85 +14,57 @@ pipeline {
           }
         }
       }
-	  
-	stage('lastest merge') {
-	  steps {
-	        echo "Branch have latest merge"
-			script {
-			try {
-			  sh '''
-			      #!/bin/bash
-				  pwd
-				  cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/
-				  git clone https://github.com/Thenmozhy/mnc_jenkinsfile.git 
-				  cd mnc_jenkinsfile
-				  ls -l
-				  commit=$(git rev-parse origin/master)
-				  git checkout develop
-				  git checkout master
-				  echo "$commit"
-				  cd .git/refs/heads
-				  master_commit=$(head -n1 master)
-				  echo "$master_commit"
-				  dev_commit=$(head -n1 develop)
-				  echo "$dev_commit"
-				  if [ "$commit" == "$master_commit" ]
-				  
-				  
-				  then
-					echo "Commit on master branch"
-					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile
-					git checkout master
-					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile -x *.git* 
-					
-				  else
-					echo "Commit on develop branch"
-					cd /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/
-					git checkout develop
-					zip -r "/var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile/REAN-ManagedCloud-repo.zip" /var/lib/jenkins/workspace/REAN-ManagedCloud-DEV@tmp/mnc_jenkinsfile -x *.git*
-					
-				  fi
+    
+  stage('lastest merge') {
+    steps {
+          echo "Branch have latest merge"
+      script {
+      try {
+        sh '''
+          #!/bin/bash
+          pwd
+          git clone https://github.com/Thenmozhy/mnc_jenkinsfile.git
+          cd mnc_jenkinsfile
+          ls -l
+          git pull
+          git branch
+          git checkout develop
+          commit_dev=$(git rev-parse origin/develop)
+          echo "$commit_dev"
+          commit_mas=$(git rev-parse origin/master)
+          echo "$commit_mas"
+          lat_commit=$(git rev-list --remotes) > latest_commit
+          branch_commit=$(head -n1 latest_commit)
+          echo "$branch_commit"
+          if [ "$branch_commit" == "$commit_mas" ]
+          then
+          echo "Commit on master branch"
+          cd /var/lib/jenkins/workspace/mncjenkinsfile-DEV/mnc_jenkinsfile
+          git checkout master
+          zip -r master-branch.zip . -x ".*" -x "latest_commit" -x "*.zip"
+          echo "master branch is zipped"
+          aws s3 cp master-branch.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Master/master-branch.zip.zip
+          echo "artitacts sent to s3"
+          
+          
+          else
+          echo "Commit on develop branch"
+          cd /var/lib/jenkins/workspace/mncjenkinsfile-DEV/mnc_jenkinsfile
+          git checkout develop
+          zip -r develop-branch.zip . -x ".*" -x "latest_commit" -x "*.zip"
+          ls -l
+          echo "develop branch is zipped"
+          aws s3 cp develop-branch.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Develop/develop-branch.zip.zip
+          echo "artitacts sent to s3"
+          fi
                 '''
-			}
-			catch (Exception e) {
-			}
-		  }				  
-	    }
-	  }  
-  
-	stage('Uploading the artifacts to S3 bucket') {
-	  steps {
-			echo "Starting verify target branch"
-			script {
-			try {
-			  sh '''
-                  #!/bin/bash
-				  commit=$(git rev-parse origin/master)
-				  echo "$commit"
-				  cd .git/refs/heads
-				  master_commit=$(head -n1 master)
-				  echo "$master_commit"
-				  dev_commit=$(head -n1 develop)
-				  echo "$dev_commit"
-				  if [ "$commit" == "$master_commit" ]
-				    echo "Target branch is develop"
-					aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Develop/REAN-ManagedCloud-repo.zip
-					echo "artifacts sent to develop"
-					
-				  else
-					echo "Target branch is master"
-					aws s3 cp $WORKSPACE/REAN-ManagedCloud-repo.zip s3://svc-rean-product-default-platform-artifacts/REAN-ManagedCloud-DEV/Master/REAN-ManagedCloud-repo.zip
-					echo "artifacts sent to master"
-				    exit 1
-				  fi
-                '''
-			}
-			catch (Exception e) {
-			}
-		  }
-	    }
-	 }
-	}	
+      }
+      catch (Exception e) {
+      }
+      }         
+      }
+    }  
+  } 
   post {
     always {
       deleteDir()
